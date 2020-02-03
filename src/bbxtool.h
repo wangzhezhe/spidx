@@ -4,25 +4,19 @@
 #ifndef BBXTOOL_H
 #define BBXTOOL_H
 
-#include <array>
-#include <climits>
-#include <iostream>
-#include <vector>
+#include "limits.h"
 
 //if this number is modified, the for loop part also need to be modified
-static const size_t DEFAULT_MAX_DIM = 3;
+static const size_t DEFAULT_MAX_DIM = 9;
+static const size_t DEFAULT_3D = 3;
 
-namespace BBXTOOL
-{
 
 // the bound value for specific dimention
 struct Bound
 {
-  Bound(){};
   Bound(int lb, int ub) : m_lb(lb), m_ub(ub){};
   int m_lb = INT_MAX;
   int m_ub = INT_MIN;
-  ~Bound(){};
 };
 
 // the bbox for the application domain
@@ -32,35 +26,25 @@ struct Bound
 // TODO update, use the vector of the Bound
 struct BBX
 {
-  // the bound for every dimention
 
-  BBX(size_t dims) : m_dims(dims){};
   // the value of the m_dims represent the valid dimentions for this bounding
   // box
-  size_t m_dims = DEFAULT_MAX_DIM;
-  /*
-  BBX(std::array<int, 2> indexlb, std::array<int, 2> indexub) {
-    for (int i = 0; i < 2; i++) {
-      Bound *b = new Bound(indexlb[i], indexub[i]);
-      this->BoundList.push_back(b);
-    }
-  };
-  */
-  // TODO, the bounding box here can larger than 3 in theory, we only implement
+  size_t m_dims = DEFAULT_3D;
+
   // the 3 for get subregion
 
-  BBX(size_t dimNum, std::array<size_t, DEFAULT_MAX_DIM> indexlb, std::array<size_t, DEFAULT_MAX_DIM> indexub)
+  BBX(size_t dimNum, size_t indexlb[DEFAULT_MAX_DIM], size_t indexub[DEFAULT_MAX_DIM])
   {
     m_dims = dimNum;
     // if there is only one dim, the second and third value will be the 0
     for (int i = 0; i < m_dims; i++)
     {
-      Bound *b = new Bound((int)indexlb[i], (int)indexub[i]);
-      BoundList.push_back(b);
+      Bound *b =(Bound *)malloc(sizeof(Bound));
+      BoundList[i]=b;
     }
   };
 
-  BBX(size_t dimNum, std::array<int, DEFAULT_MAX_DIM> indexlb, std::array<int, DEFAULT_MAX_DIM> indexub)
+  BBX(size_t dimNum, size_t indexlb[DEFAULT_MAX_DIM], size_t indexub[DEFAULT_MAX_DIM])
   {
     m_dims = dimNum;
     // if there is only one dim, the second and third value will be the 0
@@ -72,13 +56,10 @@ struct BBX
   };
 
   // the default sequence is x-y-z
-  std::vector<Bound *> BoundList;
+  Bound* BoundList[DEFAULT_MAX_DIM];
 
-  ~BBX();
-
-  std::array<int, DEFAULT_MAX_DIM> getIndexlb()
+  void getIndexlb(int *indexlb)
   {
-    std::array<int, DEFAULT_MAX_DIM> indexlb = {{0, 0, 0}};
     for (int i = 0; i < m_dims; i++)
     {
       indexlb[i] = BoundList[i]->m_lb;
@@ -86,9 +67,8 @@ struct BBX
     return indexlb;
   }
 
-  std::array<int, DEFAULT_MAX_DIM> getIndexub()
+  void getIndexub(int *indexub)
   {
-    std::array<int, DEFAULT_MAX_DIM> indexub = {{0, 0, 0}};
     for (int i = 0; i < m_dims; i++)
     {
       indexub[i] = BoundList[i]->m_ub;
@@ -219,9 +199,5 @@ inline BBX *trimOffset(BBX *a, std::array<int, DEFAULT_MAX_DIM> offset)
 }
 
 
-
-
-
-} // namespace BBXTOOL
 
 #endif
