@@ -20,7 +20,7 @@ typedef struct Bound
 // the lb/ub represents the lower bound and the upper bound of every dimention
 // Attention, if there is 1 elements for every dimention, the lower bound is
 // same with the upper bound
-typedef struct BBX
+typedef struct BBXByBound
 {
   // the value of the m_dims represent the valid dimentions for this bounding
   size_t m_dims;
@@ -28,7 +28,7 @@ typedef struct BBX
   Bound* BoundList[DEFAULT_MAX_DIM];
 }BBX;
 
-BBX* initBBX(size_t dimNum, size_t indexlb[DEFAULT_MAX_DIM], size_t indexub[DEFAULT_MAX_DIM] ){
+BBX* initBBX(size_t dimNum, size_t indexlb[DEFAULT_MAX_DIM], size_t indexub[DEFAULT_MAX_DIM]){
   BBX* bbx= (BBX*)malloc(sizeof(BBX));
   bbx->m_dims = dimNum;
   // if there is only one dim, the second and third value will be the 0
@@ -54,7 +54,7 @@ void printBBXinfo(BBX* bbx)
   return;
 }
 
-/*TODO, transform the following function into C style
+/*TODO, transform the following functions into C style
 void getIndexlb(int *indexlb)
 {
   for (int i = 0; i < m_dims; i++)
