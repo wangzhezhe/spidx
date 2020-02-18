@@ -1,5 +1,5 @@
 
-#include "../src/bbxtool.h"
+#include "../src/utils/bbxtool.h"
 
 void testBBXInit(){
     size_t lb[DEFAULT_MAX_DIM]={0,0,0};

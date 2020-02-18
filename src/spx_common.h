@@ -1,4 +1,5 @@
 
+//the data structure shared by both client and server
 #include SPIDX_COMMON_H
 #define  SPIDX_COMMON_H
 
@@ -19,8 +20,7 @@ struct spx_partition_id_bundle{
 
 //the non spatial part of the spx key
 struct spx_index_nonspatial{
-    char* m_string;
-    int m_int;
+    char m_string[256];
 };
 
 //the spatial part of the spidx is represented by the bounding box
@@ -33,6 +33,4 @@ struct spx_index_key{
     spx_index_nonspatial m_index_nonspatial;
     spx_index_spatial m_index_spatial;
 };
-
-
 #endif
