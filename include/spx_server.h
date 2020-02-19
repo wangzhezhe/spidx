@@ -10,6 +10,7 @@
 #include <margo.h>
 #include "types.h"
 
+
 //init the mochi service and expose the spidx RPC
 int spx_server_init(margo_instance_id mid,
 uint32_t global_dim, uint64_t* global_lb, uint64_t* global_ub);

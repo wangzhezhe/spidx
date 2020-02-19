@@ -1,4 +1,8 @@
 #include "spx_server.h"
+#include <mpi.h>
+#include <ssg.h>
+#include <ssg-mpi.h>
+
 
 static void spx_handle_update(hg_handle_t h);
 DECLARE_MARGO_RPC_HANDLER(spx_handle_update)
@@ -16,16 +20,26 @@ DECLARE_MARGO_RPC_HANDLER(hello_world)
 int spx_server_init(margo_instance_id mid,
 uint32_t global_dim, uint64_t* global_lb, uint64_t* global_ub)
 {
+
+
     /* register RPC */
     MARGO_REGISTER(mid, "spx_update", spx_update_in, spx_update_out, spx_handle_update);
     MARGO_REGISTER(mid, "spx_query", spx_query_in, spx_query_out, spx_handle_query);
     hg_id_t rpc_id = MARGO_REGISTER(mid, "hello", void, void, hello_world);
     margo_registered_disable_response(mid, rpc_id, HG_TRUE);
-    //TODO init the global domain
+    
+    /**
+     * SSG group creation and state query
+    
+    ssg_group_id_t gid = ssg_group_create_mpi(mid, "spidx_group", MPI_COMM_WORLD, NULL, NULL, NULL);
+    assert(gid != SSG_GROUP_ID_INVALID);
 
-    //TODO integrate spidx with the ssg
+    int self_rank = ssg_get_group_self_rank(gid);
+    int group_size = ssg_get_group_size(gid);
 
-
+    fprintf(stdout, "self rank is %d, group size is %d\n",self_rank,group_size);
+    **/
+    //TODO init the global domain and init the DHT (global domain and the number of the server)
 
     return 0;
 }

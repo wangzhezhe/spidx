@@ -7,9 +7,14 @@
 #include <abt.h>
 #include <margo.h>
 #include "../src/spx_server.h"
+#include "mpi.h"
+#include <ssg.h>
+#include <ssg-mpi.h>
 
-int main(){
+int main(int argc, char **argv){
 
+
+    MPI_Init(&argc, &argv);
     //create the margo instance
     margo_instance_id mid;
     mid = margo_init("tcp", MARGO_SERVER_MODE, 0, -1);
@@ -23,7 +28,8 @@ int main(){
     uint64_t global_lb [9] ={0,0,0};
     uint64_t global_ub [9] ={9,9,9};
     uint32_t global_dim = 3;
-
+    //assume MPI_init is called before ssg_init
+    ssg_init();
     int status = spx_server_init(mid, 3 , global_lb, global_ub);
     if(status!=0){
         fprintf(stderr, "failed to init spx server\n");
@@ -44,4 +50,7 @@ int main(){
 
     //margo_wait_for_finalize is supposed to be called by another function
     spx_server_finalize(mid);
+
+    MPI_Finalize();
+
 }

@@ -13,11 +13,14 @@ include_directories(${MERCURY_INCLUDE_DIR})
 xpkg_import_module (argobots REQUIRED argobots)
 xpkg_import_module (margo REQUIRED margo)
 xpkg_import_module (abtio REQUIRED abt-io)
+xpkg_import_module (ssg REQUIRED ssg)
+
+find_package(MPI REQUIRED) 
 
 #add server code
 add_library(spidx_server 
 ${spidx_SOURCE_DIR}/src/spx_server.c)
-target_link_libraries(spidx_server margo)
+target_link_libraries(spidx_server margo ssg MPI::MPI_C)
 
 #add client code
 
