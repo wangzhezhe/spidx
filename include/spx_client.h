@@ -83,13 +83,19 @@ int spx_provider_handle_release(spx_provider_handle_t handle);
 /**
  * @brief Update the hash domain, this hash domain is labeld by the spx_index_key
  *
- * @param spx_index_key a generalized structure supporting multiple types
- * @param spx_index_spatial the spatial information that containes the lower bound and the upper bound
+ * @param[in] handle provide handle.
+ * @param[in] spx_index_key contains the spx_index_nons_key (a generalized structure supporting multiple types of the non-spatial key)
+ * and the spx_index_spatial (the spatial information that contains the lower bound and the upper bound)
  * the spidx service will forward the update request to suitable service based on DHT and SFC
- * 
+ * @param[in] is the id associated with the spx_index_key 
+ *
  * @return SPIDX_SUCCESS or error code defined in spidx_error.h
  */
-int spx_update(spx_index_key_t spx_index_key, spx_index_spatial_t spx_index_spatial);
+int spx_client_update(
+    alpha_provider_handle_t handle,
+    spx_index_key_t spx_index_key,
+    char associated_id;
+);
 
 
 /**
@@ -102,7 +108,9 @@ int spx_update(spx_index_key_t spx_index_key, spx_index_spatial_t spx_index_spat
  * 
  * @return SPIDX_SUCCESS or error code defined in spidx_error.h
  */
-int spx_query(spx_index_spatial_t spx_index_spatial, spx_partition_id_bundle_t* list_of_spatial_id_bundle);
-
+int spx_client_query(
+    alpha_provider_handle_t handle,
+    spx_index_spatial_t spx_index_spatial, 
+    spx_partition_id_bundle_t* list_of_spatial_id_bundle);
 
 #endif

@@ -1,103 +1,102 @@
 #include "spx_server.h"
-#include <mpi.h>
-#include <ssg.h>
-#include <ssg-mpi.h>
+#include "types.h"
 
+struct spx_provider {
+    margo_instance_id mid;
+    hg_id_t update_id;
+    hg_id_t query_id;
+    /* other provider-specific data */
+};
 
-static void spx_handle_update(hg_handle_t h);
-DECLARE_MARGO_RPC_HANDLER(spx_handle_update)
+static void spx_finalize_provider(void* p);
 
-static void spx_handle_query(hg_handle_t h);
-DECLARE_MARGO_RPC_HANDLER(spx_handle_query)
+DECLARE_MARGO_RPC_HANDLER(spx_update_ult);
+DECLARE_MARGO_RPC_HANDLER(spx_query_ult);
 
-//for testing
-DECLARE_MARGO_RPC_HANDLER(hello_world)
+static void spx_update_ult(hg_handle_t h);
+static void spx_query_ult(hg_handle_t h);
+/* add other RPC declarations here */
 
-
-
-
-//margo_init operation is executed by the service that call spidx
-int spx_server_init(margo_instance_id mid,
-uint32_t global_dim, uint64_t* global_lb, uint64_t* global_ub)
+int spx_provider_register(
+        margo_instance_id mid,
+        uint16_t provider_id,
+        ABT_pool pool,
+        alpha_provider_t* provider)
 {
+    alpha_provider_t p;
+    hg_id_t id;
+    hg_bool_t flag;
 
+    flag = margo_is_listening(mid);
+    if(flag == HG_FALSE) {
+        fprintf(stderr, "alpha_provider_register(): margo instance is not a server.");
+        return ALPHA_FAILURE;
+    }
 
-    /* register RPC */
-    MARGO_REGISTER(mid, "spx_update", spx_update_in, spx_update_out, spx_handle_update);
-    MARGO_REGISTER(mid, "spx_query", spx_query_in, spx_query_out, spx_handle_query);
-    hg_id_t rpc_id = MARGO_REGISTER(mid, "hello", void, void, hello_world);
-    margo_registered_disable_response(mid, rpc_id, HG_TRUE);
-    
-    /**
-     * SSG group creation and state query
-    
-    ssg_group_id_t gid = ssg_group_create_mpi(mid, "spidx_group", MPI_COMM_WORLD, NULL, NULL, NULL);
-    assert(gid != SSG_GROUP_ID_INVALID);
+    margo_provider_registered_name(mid, "alpha_sum", provider_id, &id, &flag);
+    if(flag == HG_TRUE) {
+        fprintf(stderr, "alpha_provider_register(): a provider with the same provider id (%d) already exists.\n", provider_id);
+        return ALPHA_FAILURE;
+    }
 
-    int self_rank = ssg_get_group_self_rank(gid);
-    int group_size = ssg_get_group_size(gid);
+    p = (alpha_provider_t)calloc(1, sizeof(*p));
+    if(p == NULL)
+        return ALPHA_FAILURE;
 
-    fprintf(stdout, "self rank is %d, group size is %d\n",self_rank,group_size);
-    **/
-    //TODO init the global domain and init the DHT (global domain and the number of the server)
+    p->mid = mid;
 
-    return 0;
+    id = MARGO_REGISTER_PROVIDER(mid, "alpha_sum",
+            sum_in_t, sum_out_t,
+            alpha_sum_ult, provider_id, pool);
+    margo_register_data(mid, id, (void*)p, NULL);
+    p->sum_id = id;
+    /* add other RPC registration here */
+
+    margo_provider_push_finalize_callback(mid, p, &alpha_finalize_provider, p);
+
+    *provider = p;
+    return ALPHA_SUCCESS;
 }
 
-//finalize the spidx service
-int spx_server_finalize(margo_instance_id mid)
+static void alpha_finalize_provider(void* p)
 {
-    margo_wait_for_finalize(mid);
-    return 0;
+    alpha_provider_t provider = (alpha_provider_t)p;
+    margo_deregister(provider->mid, provider->sum_id);
+    /* deregister other RPC ids ... */
+    free(provider);
 }
 
-static void spx_handle_update(hg_handle_t h)
+int alpha_provider_destroy(
+        alpha_provider_t provider)
 {
-    spx_update_in in;
-    spx_update_out out;
+    /* pop the finalize callback */
+    margo_provider_pop_finalize_callback(provider->mid, provider);
+    /* call the callback */
+    alpha_finalize_provider(provider);
 
-    int ret = margo_get_input(h, &in);
-    assert(ret == HG_SUCCESS);
-    
-   
-    fprintf(stdout,"spidx handle the spx_handle_update\n");
-    fprintf(stdout,"input nonspatial key (%s), spatial key (%s), id (%d)\n", 
-    in.encoded_spx_nonspatial_key, in.encoded_spx_spatial_key, in.associated_id);
-
-    //TODO
-    out.status = 777;
-    
-    ret = margo_respond(h, &out);
-    assert(ret == HG_SUCCESS);
+    return ALPHA_SUCCESS;
 }
 
-static void spx_handle_query(hg_handle_t h)
-{
-    spx_query_in in;
-    spx_query_out out;
 
-    int ret = margo_get_input(h, &in);
-    assert(ret == HG_SUCCESS);
-
-    fprintf(stdout,"spidx handle the spx_handle_query\n");
-    fprintf(stdout,"input encoded_spx_nonspatial_key (%s), encoded_spx_spatial_key (%s)\n", 
-    in.encoded_spx_nonspatial_key, in.encoded_spx_spatial_key);
-
-    //TODO
-    out.status=888;
-    out.encoded_spx_spatial_id_bundle="test-encoded-spatial-id-boundle";
-    ret = margo_respond(h, &out);
-    assert(ret == HG_SUCCESS);
-
-}
-
-static void hello_world(hg_handle_t h)
+static void alpha_sum_ult(hg_handle_t h)
 {
     hg_return_t ret;
-    printf("Hello World!\n");
+    sum_in_t     in;
+    sum_out_t   out;
+
+    margo_instance_id mid = margo_hg_handle_get_instance(h);
+
+    const struct hg_info* info = margo_get_info(h);
+    alpha_provider_t provider = (alpha_provider_t)margo_registered_data(mid, info->id);
+
+    ret = margo_get_input(h, &in);
+
+    out.ret = in.x + in.y;
+    printf("Computed %d + %d = %d\n",in.x,in.y,out.ret);
+
+    ret = margo_respond(h, &out);
+
+    ret = margo_free_input(h, &in);
 }
 
-
-DEFINE_MARGO_RPC_HANDLER(hello_world)
-DEFINE_MARGO_RPC_HANDLER(spx_handle_update)
-DEFINE_MARGO_RPC_HANDLER(spx_handle_query)
+DEFINE_MARGO_RPC_HANDLER(alpha_sum_ult)

@@ -17,10 +17,15 @@ xpkg_import_module (ssg REQUIRED ssg)
 
 find_package(MPI REQUIRED) 
 
+
+#add include dir
+include_directories(${spidx_SOURCE_DIR}/include)
+
+
 #add server code
-add_library(spidx_server 
-${spidx_SOURCE_DIR}/src/spx_server.c)
-target_link_libraries(spidx_server margo ssg MPI::MPI_C)
+add_library(spx_server_inner ${spidx_SOURCE_DIR}/src/spx_server_inner.c)
+target_link_libraries(spx_server_inner argobots)
+
 
 #add client code
 
