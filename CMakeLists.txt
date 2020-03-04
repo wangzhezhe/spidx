@@ -26,8 +26,14 @@ include_directories(${spidx_SOURCE_DIR}/include)
 add_library(spx_server_inner ${spidx_SOURCE_DIR}/src/spx_server_inner.c)
 target_link_libraries(spx_server_inner argobots)
 
+add_library(spx_server ${spidx_SOURCE_DIR}/src/spx_server.c)
+target_link_libraries(spx_server argobots margo)
+
 
 #add client code
+add_library(spx_client ${spidx_SOURCE_DIR}/src/spx_client.c)
+target_link_libraries(spx_client argobots margo)
+
 
 if (ENABLE_TESTING)
   add_subdirectory(test)

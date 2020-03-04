@@ -10,7 +10,7 @@
 
 MERCURY_GEN_PROC(spx_update_in,
         ((hg_string_t)(encoded_spx_nonspatial_key))\
-        ((hg_string_t)(encoded_spx_spatial_key))\
+        ((hg_bulk_t)(spatial_key_bulk))\
         ((uint32_t)(associated_id))
 )
 
@@ -20,12 +20,13 @@ MERCURY_GEN_PROC(spx_update_out,
 
 MERCURY_GEN_PROC(spx_query_in,
         ((hg_string_t)(encoded_spx_nonspatial_key))\
-        ((hg_string_t)(encoded_spx_spatial_key))  
+        ((hg_bulk_t)(spatial_key_bulk))  
 )
 
 MERCURY_GEN_PROC(spx_query_out, 
 ((int32_t)(status))\
-((hg_string_t)(encoded_spx_spatial_id_bundle))
+((hg_bulk_t)(encoded_spx_spatial_id_bundle))\
+((int32_t)(encoded_boundle_size))
 )
 
 #endif

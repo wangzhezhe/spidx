@@ -17,7 +17,7 @@ extern "C" {
 #include "../src/utils/uthash.h"
 #include "../src/utils/utlist.h"
 
-#define BUFLEN 256
+
 
 typedef struct domain_id_boundle_t{
     BBX* m_spatial_key;
@@ -51,6 +51,7 @@ int spx_inner_put(char encoded_nons_key[BUFLEN], bbx_t put_domain, int mem_id);
 //query the associated value by the spx key
 //return a linked list, every element is a domain_id bundle
 domain_id_boundle_t* spx_inner_query(char encoded_nons_key[BUFLEN], bbx_t query_domain);
+
 #ifdef __cplusplus
 }
 #endif

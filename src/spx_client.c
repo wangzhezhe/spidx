@@ -123,9 +123,9 @@ int spx_provider_handle_release(spx_provider_handle_t handle)
 }
 
 int spx_client_update(
-    alpha_provider_handle_t handle,
+    spx_provider_handle_t handle,
     spx_index_key_t spx_index_key,
-    char associated_id){
+    int associated_id){
     
     hg_handle_t   h;
     spx_update_in update_in_arg;
@@ -138,7 +138,7 @@ int spx_client_update(
     if(ret != HG_SUCCESS)
         return SPIDX_FAILURE;
 
-    ret = margo_provider_forward(handle->provider_id, h, &spx_update_in);
+    ret = margo_provider_forward(handle->provider_id, h, &update_in_arg);
     if(ret != HG_SUCCESS) {
         margo_destroy(h);
         return SPIDX_FAILURE;
@@ -157,9 +157,9 @@ int spx_client_update(
 }
 
 int spx_client_query(
-    spx_provider_handle handle,
-    spx_index_spatial_t spx_index_spatial, 
-    spx_partition_id_bundle_t* list_of_spatial_id_bundle){
+    spx_provider_handle_t handle,
+    bbx_t* spx_index_spatial, 
+    spx_domain_id_bundle_t* bundle_list){
 
 
     hg_handle_t h;

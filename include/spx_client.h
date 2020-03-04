@@ -16,9 +16,9 @@ extern "C" {
 #endif
 
 typedef struct spx_client* spx_client_t;
-#define SPX_CLIENT_NULL ((spx_client_t)NULL)
+#define SPIDX_CLIENT_NULL ((spx_client_t)NULL)
 typedef struct spx_provider_handle *spx_provider_handle_t;
-#define SPX_PROVIDER_HANDLE_NULL ((spx_provider_handle_t)NULL)
+#define SPIDX_PROVIDER_HANDLE_NULL ((spx_provider_handle_t)NULL)
 
 //init the mochi service and expose the spidx RPC
 /**
@@ -29,7 +29,7 @@ typedef struct spx_provider_handle *spx_provider_handle_t;
 *
 * @return SPIDX_SUCCESS or error code defined in spidx_error.h
 */
-int spx_client_init(margo_instance_id mid, spidx_client_t* client);
+int spx_client_init(margo_instance_id mid, spx_client_t* client);
 
 /**
  * @brief Finalizes a SPIDX client.
@@ -92,10 +92,9 @@ int spx_provider_handle_release(spx_provider_handle_t handle);
  * @return SPIDX_SUCCESS or error code defined in spidx_error.h
  */
 int spx_client_update(
-    alpha_provider_handle_t handle,
+    spx_provider_handle_t handle,
     spx_index_key_t spx_index_key,
-    char associated_id;
-);
+    int associated_id);
 
 
 /**
@@ -109,8 +108,8 @@ int spx_client_update(
  * @return SPIDX_SUCCESS or error code defined in spidx_error.h
  */
 int spx_client_query(
-    alpha_provider_handle_t handle,
-    spx_index_spatial_t spx_index_spatial, 
-    spx_partition_id_bundle_t* list_of_spatial_id_bundle);
+    spx_provider_handle_t handle,
+    bbx_t* spx_index_spatial, 
+    spx_domain_id_bundle_t* bundle_list);
 
 #endif
