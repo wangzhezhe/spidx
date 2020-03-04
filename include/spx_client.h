@@ -79,22 +79,35 @@ int spx_provider_handle_ref_incr(
  */
 int spx_provider_handle_release(spx_provider_handle_t handle);
 
+/**
+ * @brief register the hash_domain to the coresponding server based on SFC
+ *
+ * @param[in] handle provide handle. 
+ * @param[in] the hash_domain defined by the bounding box.
+
+ * @return SPIDX_SUCCESS or error code defined in spidx_error.h
+ */
+int spx_client_register(
+    spx_provider_handle_t handle,
+    bbx_t* hash_domain
+);
 
 /**
  * @brief Update the hash domain, this hash domain is labeld by the spx_index_key
  *
  * @param[in] handle provide handle.
- * @param[in] spx_index_key contains the spx_index_nons_key (a generalized structure supporting multiple types of the non-spatial key)
- * and the spx_index_spatial (the spatial information that contains the lower bound and the upper bound)
- * the spidx service will forward the update request to suitable service based on DHT and SFC
+ * @param[in] spx_nons_key is the a generalized structure supporting multiple types of the non-spatial key
+ * @param[in] spx_spatial_key is the spatial key (bounding box), the client will put the request
+ * to the suitable server based on SFC
  * @param[in] is the id associated with the spx_index_key 
  *
  * @return SPIDX_SUCCESS or error code defined in spidx_error.h
  */
 int spx_client_update(
     spx_provider_handle_t handle,
-    spx_index_key_t spx_index_key,
-    int associated_id);
+    spx_nonskey_entry*spx_nons_key,
+    bbx_t*spx_spatial_key,
+    int32_t associated_id);
 
 
 /**

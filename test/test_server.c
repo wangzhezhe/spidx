@@ -3,22 +3,32 @@
 #include <margo.h>
 #include <spx_server.h>
 
-int main(int argc, char** argv)
+margo_instance_id gloabl_mid;
+
+int main(int argc, char **argv)
 {
-    margo_instance_id mid = margo_init("tcp", MARGO_SERVER_MODE, 0, 0);
-    assert(mid);
+    margo_instance_id gloabl_mid = margo_init("na+sm", MARGO_SERVER_MODE, 0, 0);
+    assert(gloabl_mid);
 
     hg_addr_t my_address;
-    margo_addr_self(mid, &my_address);
+    margo_addr_self(gloabl_mid, &my_address);
     char addr_str[128];
     size_t addr_str_size = 128;
-    margo_addr_to_string(mid, addr_str, &addr_str_size, my_address);
-    margo_addr_free(mid, my_address);
-    printf("Server running at address %s, with provider id 42\n", addr_str);
+    margo_addr_to_string(gloabl_mid, addr_str, &addr_str_size, my_address);
+    margo_addr_free(gloabl_mid, my_address);
 
-    spx_provider_register(mid, 42, SPIDX_ABT_POOL_DEFAULT, SPIDX_PROVIDER_IGNORE);
+    int a = sizeof(size_t);
+    int b = sizeof(hg_size_t);
+    fprintf(stdout, "%d %d\n", a, b);
+    fprintf(stdout, "test server\n");
+    fprintf(stdout, "Server running at address %s, with provider id 42\n", addr_str);
+    fflush(stdout);
+    spx_provider_t spx_prov = SPIDX_PROVIDER_NULL;
+    spx_provider_register(gloabl_mid, 42, SPIDX_ABT_POOL_DEFAULT, &spx_prov);
+    
+    margo_wait_for_finalize(gloabl_mid);
 
-    margo_wait_for_finalize(mid);
+    //todo capture ctrl+c
 
     return 0;
 }

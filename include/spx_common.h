@@ -32,7 +32,18 @@ typedef struct bbx_t
     uint64_t m_ub[DEFAULT_MAX_DIM];
 } bbx_t;
 
-static void printbbx(bbx_t* bbx)
+static void copybbx(bbx_t *destbbx, bbx_t *srcbbx)
+{
+    destbbx->m_dims = srcbbx->m_dims;
+    int i;
+    for (i = 0; i < DEFAULT_MAX_DIM; i++)
+    {
+        destbbx->m_lb[i] = srcbbx->m_lb[i];
+        destbbx->m_ub[i] = srcbbx->m_ub[i];
+    }
+    return;
+}
+static void printbbx(bbx_t *bbx)
 {
     fprintf(stdout, "dims %d\n", bbx->m_dims);
     int i;
@@ -51,13 +62,15 @@ static void printbbx(bbx_t* bbx)
     }
 
     fprintf(stdout, "\n");
+    return;
 }
 
 //the struct for the spx key
-typedef struct spx_index_key_t{
-    spx_nonskey_entry m_index_nonspatial;
+typedef struct spx_index_key_t
+{
+    char m_index_nonspatial[BUFLEN];
     bbx_t m_index_spatial;
-}spx_index_key_t;
+} spx_index_key_t;
 
 //one parition is bined with one id
 //this informaiton is basic unit updated by the update API
@@ -68,40 +81,41 @@ typedef struct spx_domain_id_bundle_t
     int m_associated_id;
 } spx_domain_id_bundle_t;
 
-static void enocde_nonspatial_key(spx_nonskey_entry* nonskey_entry, char encoded_buffer[BUFLEN])
+static void enocde_nonspatial_key(spx_nonskey_entry *nonskey_entry, char* encoded_buffer)
 {
+    char buffer[BUFLEN];
     if (nonskey_entry->type == SPX_ELEM_INT)
     {
-        sprintf(encoded_buffer, "%d", *(int*)nonskey_entry->value);
+        sprintf(buffer, "%d", *(int *)nonskey_entry->value);
     }
     else if (nonskey_entry->type == SPX_ELEM_STR)
     {
-        sprintf(encoded_buffer, "%s", (char*)nonskey_entry->value);
+        sprintf(buffer, "%s", (char *)nonskey_entry->value);
     }
     else if (nonskey_entry->type == SPX_ELEM_INTSTR)
     {
-        sprintf(encoded_buffer, "%s", (char*)nonskey_entry->value);
+        sprintf(buffer, "%s", (char *)nonskey_entry->value);
     }
     else
     {
         fprintf(stderr, "unsuported type %d\n", nonskey_entry->type);
     }
+    strcpy(encoded_buffer, buffer);
     return;
 }
 
-static void encode_spatial_key(bbx_t* bbx, char encoded_buffer[BUFLEN])
+static void encode_spatial_key(bbx_t *bbx, char encoded_buffer[BUFLEN])
 {
     //size of bbx is 152 on 64 bit CPU
     memcpy(encoded_buffer, (char *)bbx, sizeof(bbx_t));
     return;
 }
 
-
 static void decode_domain_id_bundle(char *encoded_domain_id_bundle)
 {
     //return an array of listed boundle
     //the first 16 bit is the length of the array
-    int headerLen = 4+4;
+    int headerLen = 4 + 4;
     char arrayLen[headerLen];
     memcpy(arrayLen, encoded_domain_id_bundle, headerLen);
     int len = atoi(arrayLen);

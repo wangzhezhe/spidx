@@ -1,6 +1,7 @@
 #include "types.h"
 #include "spx_client.h"
 #include "spx_error.h"
+#include <string.h>
 
 struct spx_client
 {
@@ -29,19 +30,20 @@ int spx_client_init(margo_instance_id mid, spx_client_t *client)
     c->mid = mid;
 
     hg_bool_t flag;
-    hg_id_t id;
+    hg_id_t update_id;
+    hg_id_t query_id;
 
-    margo_registered_name(mid, "spx_update", &id, &flag);
+    margo_registered_name(mid, "spx_update", &update_id, &flag);
     if (flag == HG_TRUE)
     {
         margo_registered_name(mid, "spx_update", &c->spx_update_id, &flag);
     }
     else
     {
-        c->spx_update_id = MARGO_REGISTER(mid, "spx_update", spx_update_in, spx_update_out, NULL);
+        c->spx_update_id = MARGO_REGISTER(mid, "spx_update", spx_update_in_t, spx_update_out_t, NULL);
     }
 
-    margo_registered_name(mid, "spx_query", &id, &flag);
+    margo_registered_name(mid, "spx_query", &query_id, &flag);
     if (flag == HG_TRUE)
     {
         margo_registered_name(mid, "spx_query", &c->spx_query_id, &flag);
@@ -124,43 +126,81 @@ int spx_provider_handle_release(spx_provider_handle_t handle)
 
 int spx_client_update(
     spx_provider_handle_t handle,
-    spx_index_key_t spx_index_key,
-    int associated_id){
-    
-    hg_handle_t   h;
-    spx_update_in update_in_arg;
-    spx_update_out update_resp;
+    spx_nonskey_entry *spx_nons_key,
+    bbx_t *spx_spatial_key,
+    int32_t associated_id)
+{
+
+    hg_handle_t h;
+    spx_update_in_t update_in_arg;
     hg_return_t ret;
 
-    //encode the input spatial and nonspatial key into string
+    //generate the key
+    spx_index_key_t *client_spx_key = (spx_index_key_t *)calloc(1, sizeof(spx_index_key_t));
+    
+    enocde_nonspatial_key(spx_nons_key, client_spx_key->m_index_nonspatial);
+
+    client_spx_key->m_index_spatial.m_dims = spx_spatial_key->m_dims;
+    int i;
+    for (i = 0; i < DEFAULT_MAX_DIM; i++)
+    {
+        client_spx_key->m_index_spatial.m_lb[i] = spx_spatial_key->m_lb[i];
+        client_spx_key->m_index_spatial.m_ub[i] = spx_spatial_key->m_ub[i];
+    }
+
+    printbbx(&client_spx_key->m_index_spatial);
+    //fill the obj
+    update_in_arg.spx_key.size = sizeof(spx_index_key_t);
+    update_in_arg.spx_key.raw_obj = (char *)client_spx_key;
+    //update_in_arg.associated_id = associated_id;
+    fprintf(stdout, "debug size %d debug id %d\n", update_in_arg.spx_key.size, 0);
 
     ret = margo_create(handle->client->mid, handle->addr, handle->client->spx_update_id, &h);
-    if(ret != HG_SUCCESS)
+    if (ret != HG_SUCCESS)
         return SPIDX_FAILURE;
 
+    fprintf(stdout, "debug1\n");
     ret = margo_provider_forward(handle->provider_id, h, &update_in_arg);
-    if(ret != HG_SUCCESS) {
+    fprintf(stdout, "debug2\n");
+
+    if (ret != HG_SUCCESS)
+    {
         margo_destroy(h);
         return SPIDX_FAILURE;
     }
 
-    ret = margo_get_output(h, &update_resp);
-    if(ret != HG_SUCCESS) {
+    spx_update_out_t resp;
+    resp.ret = 0;
+    fprintf(stdout, "debug size of resp %d\n", sizeof(resp));
+
+    ret = margo_get_output(h, &resp);
+    fprintf(stdout, "debug3 ret %d\n", ret);
+    fprintf(stdout, "return value %d\n", resp.ret);
+
+    if (ret != HG_SUCCESS)
+    {
+        free(client_spx_key);
         margo_destroy(h);
         return SPIDX_FAILURE;
     }
+    fprintf(stdout, "debug4 ret %d\n", ret);
 
-    margo_free_output(h, &update_resp);
+    int32_t status = 0;
+    //status = resp.ret;
+
+    margo_free_input(h, &update_in_arg);
+    margo_free_output(h, &resp);
+    free(client_spx_key);
     margo_destroy(h);
-    return SPIDX_SUCCESS;
 
+    return status;
 }
 
 int spx_client_query(
     spx_provider_handle_t handle,
-    bbx_t* spx_index_spatial, 
-    spx_domain_id_bundle_t* bundle_list){
-
+    bbx_t *spx_index_spatial,
+    spx_domain_id_bundle_t *bundle_list)
+{
 
     hg_handle_t h;
     spx_query_in query_in_arg;
@@ -170,17 +210,19 @@ int spx_client_query(
     //encode the input spatial and nonspatial key into string
 
     ret = margo_create(handle->client->mid, handle->addr, handle->client->spx_update_id, &h);
-    if(ret != HG_SUCCESS)
+    if (ret != HG_SUCCESS)
         return SPIDX_FAILURE;
 
     ret = margo_provider_forward(handle->provider_id, h, &query_in_arg);
-    if(ret != HG_SUCCESS) {
+    if (ret != HG_SUCCESS)
+    {
         margo_destroy(h);
         return SPIDX_FAILURE;
     }
 
     ret = margo_get_output(h, &query_resp);
-    if(ret != HG_SUCCESS) {
+    if (ret != HG_SUCCESS)
+    {
         margo_destroy(h);
         return SPIDX_FAILURE;
     }
@@ -190,6 +232,11 @@ int spx_client_query(
     margo_free_output(h, &query_resp);
     margo_destroy(h);
     return SPIDX_SUCCESS;
-
 }
 
+int spx_client_register(
+    spx_provider_handle_t handle,
+    bbx_t *hash_domain)
+{
+    return SPIDX_SUCCESS;
+}
