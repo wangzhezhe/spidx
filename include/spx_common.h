@@ -7,9 +7,26 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <margo.h>
 
 #define DEFAULT_MAX_DIM 9
 #define BUFLEN 256
+
+typedef struct spx_provider
+{
+    margo_instance_id mid;
+    hg_id_t update_id;
+    hg_id_t query_id;
+    /* other provider-specific data */
+}spx_provider_t;
+
+typedef enum {
+    SFCGLOBAL,
+    VERSION,
+    VARNAME,
+    RBGLOBAL, //recursive bisection of global dimensions
+    INTERLEAVING
+}HASHMETHOD;
 
 typedef enum
 {

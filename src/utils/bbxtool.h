@@ -15,8 +15,8 @@ extern "C"
 #define DEFAULT_MAX_DIM 9
 #define DEFAULT_3D 3
 
-#define MAX(a, b) ((a > b) ? a : b)
-#define MIN(a, b) ((a < b) ? a : b)
+#define BBXMAX(a, b) ((a > b) ? a : b)
+#define BBXMIN(a, b) ((a < b) ? a : b)
 
   // the bound value for specific dimention
   typedef struct Bound
@@ -101,8 +101,8 @@ extern "C"
     }
 
     Bound *overlapBound = (Bound *)malloc(sizeof(Bound));
-    overlapBound->m_lb = MAX(a->m_lb, b->m_lb);
-    overlapBound->m_ub = MIN(a->m_ub, b->m_ub);
+    overlapBound->m_lb = BBXMAX(a->m_lb, b->m_lb);
+    overlapBound->m_ub = BBXMIN(a->m_ub, b->m_ub);
 
     return overlapBound;
   }

@@ -9,7 +9,7 @@
 //refer to https://readthedocs.org/projects/mochi/downloads/pdf/latest/
 //the size is the memory space for any object
 typedef struct{
-        size_t size;
+        int64_t size;
         char *raw_obj;
 }obj_t;
 
@@ -115,18 +115,16 @@ static inline hg_return_t hg_proc_obj_list_t(hg_proc_t proc, void* data)
 
 
 MERCURY_GEN_PROC(spx_update_in_t,
-        ((obj_t)(spx_key))
+        ((obj_t)(spx_key))\
+        ((int32_t)(associated_id))
 )
-
 
 MERCURY_GEN_PROC(spx_update_out_t,
 	((int64_t)(ret)))
 
-
-
-
 MERCURY_GEN_PROC(spx_query_in,
-        ((obj_t)(spx_key)) 
+        ((obj_t)(spx_key))
+       
 )
 
 MERCURY_GEN_PROC(spx_query_out, 

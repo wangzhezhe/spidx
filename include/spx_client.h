@@ -54,7 +54,6 @@ int spx_client_finalize(spx_client_t client);
 int spx_provider_handle_create(
         spx_client_t client,
         hg_addr_t addr,
-        uint16_t provider_id,
         spx_provider_handle_t* handle);
 
 /**
@@ -107,7 +106,9 @@ int spx_client_update(
     spx_provider_handle_t handle,
     spx_nonskey_entry*spx_nons_key,
     bbx_t*spx_spatial_key,
-    int32_t associated_id);
+    int32_t associated_id,
+    HASHMETHOD method;
+);
 
 
 /**

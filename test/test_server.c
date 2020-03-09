@@ -21,14 +21,11 @@ int main(int argc, char **argv)
     int b = sizeof(hg_size_t);
     fprintf(stdout, "%d %d\n", a, b);
     fprintf(stdout, "test server\n");
-    fprintf(stdout, "Server running at address %s, with provider id 42\n", addr_str);
+    fprintf(stdout, "Server running at address %s\n", addr_str);
     fflush(stdout);
-    spx_provider_t spx_prov = SPIDX_PROVIDER_NULL;
-    spx_provider_register(gloabl_mid, 42, SPIDX_ABT_POOL_DEFAULT, &spx_prov);
-    
+    spx_provider_t* spx_prov = NULL;
+    spx_provider_register(gloabl_mid, spx_prov);
     margo_wait_for_finalize(gloabl_mid);
-
-    //todo capture ctrl+c
 
     return 0;
 }

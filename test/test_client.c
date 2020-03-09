@@ -48,8 +48,11 @@ void test_update(spx_provider_handle_t spx_ph)
         bbx->m_ub[i] = 256;
     }
 
-    int result = spx_client_update(spx_ph, entry_str, bbx, (uint32_t)12345);
+    HASHMETHOD hash_method = SFCGLOBAL;
+
+    int result = spx_client_update(spx_ph, entry_str, bbx, (uint32_t)12345, hash_method);
     fprintf(stdout, "result of test_update %d\n", result);
+    
     free(entry_str);
     free(bbx);
     return;
@@ -82,14 +85,13 @@ void test_query(spx_provider_handle_t spx_ph)
 
 int main(int argc, char **argv)
 {
-    if (argc != 3)
+    if (argc != 2)
     {
-        fprintf(stderr, "Usage: %s <server address> <provider id>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <server address>\n", argv[0]);
         exit(0);
     }
 
     const char *svr_addr_str = argv[1];
-    uint16_t provider_id = atoi(argv[2]);
 
     margo_instance_id mid = margo_init("na+sm", MARGO_CLIENT_MODE, 0, 0);
 
@@ -101,7 +103,7 @@ int main(int argc, char **argv)
 
     spx_client_init(mid, &spx_clt);
 
-    spx_provider_handle_create(spx_clt, svr_addr, provider_id, &spx_ph);
+    spx_provider_handle_create(spx_clt, svr_addr,&spx_ph);
 
     //test_register(spx_ph);
 
