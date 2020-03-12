@@ -113,6 +113,13 @@ static inline hg_return_t hg_proc_obj_list_t(hg_proc_t proc, void* data)
     return ret;
 }
 
+MERCURY_GEN_PROC(spx_register_in_t,
+        ((obj_t)(hash_domain))
+)
+
+MERCURY_GEN_PROC(spx_register_out_t,
+	((int32_t)(ret)))
+
 
 MERCURY_GEN_PROC(spx_update_in_t,
         ((obj_t)(spx_key))\
@@ -120,14 +127,14 @@ MERCURY_GEN_PROC(spx_update_in_t,
 )
 
 MERCURY_GEN_PROC(spx_update_out_t,
-	((int64_t)(ret)))
+	((int32_t)(ret)))
 
-MERCURY_GEN_PROC(spx_query_in,
-        ((obj_t)(spx_key))
-       
+
+MERCURY_GEN_PROC(spx_query_in_t,
+        ((obj_t)(spx_key))  
 )
 
-MERCURY_GEN_PROC(spx_query_out, 
+MERCURY_GEN_PROC(spx_query_out_t, 
 ((int32_t)(status))\
 ((obj_list_t)(encoded_spx_spatial_id_bundle))
 )

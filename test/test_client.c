@@ -5,6 +5,7 @@
 //register the hash domain
 void test_register(spx_provider_handle_t spx_ph)
 {
+    fprintf(stdout, "---test_register---\n");
     //generate the bbx
     bbx_t *bbx = (bbx_t *)malloc(sizeof(bbx_t));
     bbx->m_dims = 3;
@@ -17,12 +18,19 @@ void test_register(spx_provider_handle_t spx_ph)
 
     int result = spx_client_register(spx_ph, bbx);
     fprintf(stdout, "result of test_register %d\n", result);
+    free(bbx);
+    if (result != 0)
+    {
+        fprintf(stdout, "---failed for test_register---");
+        exit(-1);
+    }
     return;
 }
 
 //update the spx key and associated id
 void test_update(spx_provider_handle_t spx_ph)
 {
+    fprintf(stdout, "---test_update---\n");
     //generate entry
     char *str = "teststr123";
     spx_nonskey_entry *entry_str = (spx_nonskey_entry *)malloc(sizeof(spx_nonskey_entry));
@@ -49,12 +57,17 @@ void test_update(spx_provider_handle_t spx_ph)
     }
 
     HASHMETHOD hash_method = SFCGLOBAL;
-
     int result = spx_client_update(spx_ph, entry_str, bbx, (uint32_t)12345, hash_method);
     fprintf(stdout, "result of test_update %d\n", result);
-    
+
     free(entry_str);
     free(bbx);
+
+    if (result != 0)
+    {
+        fprintf(stdout, "---failed for test_update---\n");
+        exit(-1);
+    }
     return;
 }
 
@@ -93,7 +106,7 @@ int main(int argc, char **argv)
 
     const char *svr_addr_str = argv[1];
 
-    margo_instance_id mid = margo_init("na+sm", MARGO_CLIENT_MODE, 0, 0);
+    margo_instance_id mid = margo_init("tcp", MARGO_CLIENT_MODE, 0, 0);
 
     hg_addr_t svr_addr;
     margo_addr_lookup(mid, svr_addr_str, &svr_addr);
@@ -103,9 +116,9 @@ int main(int argc, char **argv)
 
     spx_client_init(mid, &spx_clt);
 
-    spx_provider_handle_create(spx_clt, svr_addr,&spx_ph);
+    spx_provider_handle_create(spx_clt, svr_addr, &spx_ph);
 
-    //test_register(spx_ph);
+    test_register(spx_ph);
 
     test_update(spx_ph);
 

@@ -17,6 +17,8 @@ typedef struct spx_provider
     margo_instance_id mid;
     hg_id_t update_id;
     hg_id_t query_id;
+    hg_id_t register_id;
+
     /* other provider-specific data */
 }spx_provider_t;
 

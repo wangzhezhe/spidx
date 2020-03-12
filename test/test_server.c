@@ -7,7 +7,7 @@ margo_instance_id gloabl_mid;
 
 int main(int argc, char **argv)
 {
-    margo_instance_id gloabl_mid = margo_init("na+sm", MARGO_SERVER_MODE, 0, 0);
+    margo_instance_id gloabl_mid = margo_init("tcp", MARGO_SERVER_MODE, 0, 0);
     assert(gloabl_mid);
 
     hg_addr_t my_address;
@@ -17,9 +17,6 @@ int main(int argc, char **argv)
     margo_addr_to_string(gloabl_mid, addr_str, &addr_str_size, my_address);
     margo_addr_free(gloabl_mid, my_address);
 
-    int a = sizeof(size_t);
-    int b = sizeof(hg_size_t);
-    fprintf(stdout, "%d %d\n", a, b);
     fprintf(stdout, "test server\n");
     fprintf(stdout, "Server running at address %s\n", addr_str);
     fflush(stdout);
