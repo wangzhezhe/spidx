@@ -123,7 +123,8 @@ int spx_client_update(
  */
 int spx_client_query(
     spx_provider_handle_t handle,
-    bbx_t* spx_index_spatial, 
-    spx_domain_id_bundle_t* bundle_list);
+    spx_nonskey_entry *spx_nons_key,
+    bbx_t *spx_spatial_key,
+    spx_domain_id_entry *bundle_list);
 
 #endif

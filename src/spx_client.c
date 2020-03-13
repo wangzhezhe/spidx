@@ -210,8 +210,9 @@ int spx_client_update(
 
 int spx_client_query(
     spx_provider_handle_t handle,
-    bbx_t *spx_index_spatial,
-    spx_domain_id_bundle_t *bundle_list)
+    spx_nonskey_entry *spx_nons_key,
+    bbx_t *spx_spatial_key,
+    spx_domain_id_entry *bundle_list)
 {
 
     hg_handle_t h;
@@ -219,9 +220,25 @@ int spx_client_query(
     spx_query_out_t query_resp;
     hg_return_t ret;
 
-    //encode the input spatial and nonspatial key into string
+    //generate the key
+    spx_index_key_t *client_spx_key = (spx_index_key_t *)calloc(1, sizeof(spx_index_key_t));
 
-    ret = margo_create(handle->client->mid, handle->addr, handle->client->spx_update_id, &h);
+    enocde_nonspatial_key(spx_nons_key, client_spx_key->m_index_nonspatial);
+
+    client_spx_key->m_index_spatial.m_dims = spx_spatial_key->m_dims;
+    int i;
+    for (i = 0; i < DEFAULT_MAX_DIM; i++)
+    {
+        client_spx_key->m_index_spatial.m_lb[i] = spx_spatial_key->m_lb[i];
+        client_spx_key->m_index_spatial.m_ub[i] = spx_spatial_key->m_ub[i];
+    }
+
+    //fill in the input args
+    query_in_arg.spx_key.size = sizeof(spx_index_key_t);
+    query_in_arg.spx_key.raw_obj = (char *)client_spx_key;
+
+    ret = margo_create(handle->client->mid, handle->addr, handle->client->spx_query_id, &h);
+
     if (ret != HG_SUCCESS)
         return SPIDX_FAILURE;
 
@@ -239,8 +256,58 @@ int spx_client_query(
         return SPIDX_FAILURE;
     }
 
-    //decode the response into the spx_partition_id_bundle_t
+    if (query_resp.status != 0)
+    {
+        fprintf(stderr, "the query is failed, the status is %d\n", query_resp.status);
+        return SPIDX_FAILURE;
+    }
 
+    fprintf(stdout, "ok to send and get results\n");
+
+    //decode the response into the spx_partition_id_bundle_t
+    obj_list_entry_ptr query_entry = query_resp.spx_spatial_id_list;
+    spx_domain_id_entry *dest_prev = NULL;
+    int num = 0;
+    int ifFirst = 1;
+    while (query_entry != NULL)
+    {
+        num++;
+        fprintf(stdout, "current id %d\n", num);
+
+        //check query results
+        spx_domain_id_bundle_t *tmp_query = (spx_domain_id_bundle_t *)query_entry->value.raw_obj;
+        printbbx(&(tmp_query->m_domain));
+        fprintf(stdout, "associated id %d\n", tmp_query->m_associated_id);
+
+        //generate new node (there are some problems of using the  original memory)
+        //HG contexts must be destroyed before finalizing HG
+        spx_domain_id_bundle_t *tmp_new = malloc(sizeof(spx_domain_id_bundle_t));
+        memcpy(tmp_new, query_entry->value.raw_obj, sizeof(spx_domain_id_bundle_t));
+
+        //the input pointer is null, there is no assigned space
+        spx_domain_id_entry *tmp_new_entry = (spx_domain_id_entry *)malloc(sizeof(spx_domain_id_entry));
+        tmp_new_entry->boundle_value = tmp_new;
+        tmp_new_entry->next = NULL;
+
+        //link the node
+        //the entry already exist for the first elem
+        if (ifFirst == 1)
+        {
+            bundle_list = tmp_new_entry;
+            bundle_list->next = NULL;
+            dest_prev = bundle_list;
+            ifFirst = 0;
+            query_entry = query_entry->next;
+            continue;
+        }
+
+        dest_prev->next = tmp_new_entry;
+        dest_prev = dest_prev->next;
+
+        query_entry = query_entry->next;
+    }
+
+    //do not delete the original mem
     margo_free_output(h, &query_resp);
     margo_destroy(h);
     return SPIDX_SUCCESS;

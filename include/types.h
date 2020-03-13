@@ -41,19 +41,19 @@ static inline hg_return_t hg_proc_obj_t(hg_proc_t proc, void *arg)
 }
 
 
-typedef struct obj_list {
+typedef struct obj_list_entry {
     obj_t          value;
-    struct obj_list* next;
-} *obj_list_t;
+    struct obj_list_entry* next;
+} *obj_list_entry_ptr;
 
-static inline hg_return_t hg_proc_obj_list_t(hg_proc_t proc, void* data)
+static inline hg_return_t hg_proc_obj_list_entry_ptr(hg_proc_t proc, void* data)
 {
     hg_return_t ret;
-    obj_list_t* list = (obj_list_t*)data;
+    obj_list_entry_ptr* list = (obj_list_entry_ptr*)data;
 
     hg_size_t length = 0;
-    obj_list_t tmp   = NULL;
-    obj_list_t prev  = NULL;
+    obj_list_entry_ptr tmp   = NULL;
+    obj_list_entry_ptr prev  = NULL;
 
     switch(hg_proc_get_op(proc)) {
 
@@ -71,7 +71,7 @@ static inline hg_return_t hg_proc_obj_list_t(hg_proc_t proc, void* data)
             // write the list
             tmp = *list;
             while(tmp != NULL) {
-                ret = hg_proc_obj_t(proc, &tmp->value);
+                ret = hg_proc_obj_t(proc, &(tmp->value));
                 if(ret != HG_SUCCESS)
                     break;
                 tmp = tmp->next;
@@ -86,7 +86,9 @@ static inline hg_return_t hg_proc_obj_list_t(hg_proc_t proc, void* data)
             // loop and create list elements
             *list = NULL;
             while(length > 0) {
-                tmp = (obj_list_t)calloc(1, sizeof(*tmp));
+                tmp = (obj_list_entry_ptr)calloc(1, sizeof(*tmp));
+                //this is important to control the end of the list
+                tmp->next=NULL;
                 if(*list == NULL) {
                     *list = tmp;
                 }
@@ -117,6 +119,7 @@ MERCURY_GEN_PROC(spx_register_in_t,
         ((obj_t)(hash_domain))
 )
 
+
 MERCURY_GEN_PROC(spx_register_out_t,
 	((int32_t)(ret)))
 
@@ -135,8 +138,8 @@ MERCURY_GEN_PROC(spx_query_in_t,
 )
 
 MERCURY_GEN_PROC(spx_query_out_t, 
-((int32_t)(status))\
-((obj_list_t)(encoded_spx_spatial_id_bundle))
+    ((int32_t)(status))\
+    ((obj_list_entry_ptr)(spx_spatial_id_list))
 )
 
 #endif

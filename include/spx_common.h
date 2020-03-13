@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <margo.h>
+#include "../src/utils/bbxtool.h"
 
 #define DEFAULT_MAX_DIM 9
 #define BUFLEN 256
@@ -62,6 +63,19 @@ static void copybbx(bbx_t *destbbx, bbx_t *srcbbx)
     }
     return;
 }
+
+static void copybbxfromBBX(bbx_t *destbbx, BBX *srcBBX)
+{
+    destbbx->m_dims = srcBBX->m_dims;
+    int i;
+    for (i = 0; i < srcBBX->m_dims; i++)
+    {
+        destbbx->m_lb[i] = srcBBX->BoundList[i]->m_lb;
+        destbbx->m_ub[i] = srcBBX->BoundList[i]->m_ub;
+    }
+    return;
+}
+
 static void printbbx(bbx_t *bbx)
 {
     fprintf(stdout, "dims %d\n", bbx->m_dims);
@@ -99,6 +113,13 @@ typedef struct spx_domain_id_bundle_t
     bbx_t m_domain;
     int m_associated_id;
 } spx_domain_id_bundle_t;
+
+
+typedef struct spx_domain_id_entry
+{
+    spx_domain_id_bundle_t* boundle_value;
+    struct spx_domain_id_entry* next;
+} spx_domain_id_entry;
 
 static void enocde_nonspatial_key(spx_nonskey_entry *nonskey_entry, char* encoded_buffer)
 {
