@@ -53,11 +53,22 @@ void test_update(spx_provider_handle_t spx_ph)
     {
 
         bbx->m_lb[i] = 0;
-        bbx->m_ub[i] = 256;
+        bbx->m_ub[i] = 32;
     }
 
     HASHMETHOD hash_method = SFCGLOBAL;
-    int result = spx_client_update(spx_ph, entry_str, bbx, (uint32_t)12345, hash_method);
+    int result = spx_client_update(spx_ph, entry_str, bbx, (uint32_t)123, hash_method);
+    fprintf(stdout, "result of test_update %d\n", result);
+
+
+    for (i = 0; i < 3; i++)
+    {
+
+        bbx->m_lb[i] = 64;
+        bbx->m_ub[i] = 128;
+    }
+
+    result = spx_client_update(spx_ph, entry_str, bbx, (uint32_t)456, hash_method);
     fprintf(stdout, "result of test_update %d\n", result);
 
     free(entry_str);
@@ -74,7 +85,7 @@ void test_update(spx_provider_handle_t spx_ph)
 //query the associated id based on the spx key
 void test_query(spx_provider_handle_t spx_ph)
 {
-    fprintf(stdout, "---test_update---\n");
+    fprintf(stdout, "---test_query---\n");
     //generate entry
     char *str = "teststr123";
     spx_nonskey_entry *entry_str = (spx_nonskey_entry *)malloc(sizeof(spx_nonskey_entry));
@@ -101,22 +112,25 @@ void test_query(spx_provider_handle_t spx_ph)
     }
 
     //the returned list
-    spx_domain_id_entry* return_boundle_list = NULL;
+    spx_domain_id_entry *return_boundle_list = NULL;
 
-    int result = spx_client_query(spx_ph, entry_str, bbx, return_boundle_list);
+    int result = spx_client_query(spx_ph, entry_str, bbx, &return_boundle_list);
 
     fprintf(stdout, "result of test_query %d\n", result);
 
     //check the results of the return_boundle_list
-    if(result==0){
+    if (result == 0)
+    {
         //print the results
         fprintf(stdout, "check the return resutls\n");
-        while(return_boundle_list!=NULL){
+        while (return_boundle_list != NULL)
+        {
             fprintf(stdout, "id is %d\n", return_boundle_list->boundle_value->m_associated_id);
             printbbx(&(return_boundle_list->boundle_value->m_domain));
+            return_boundle_list=return_boundle_list->next;
         }
-
     }
+    fflush(stdout);
     return;
 }
 

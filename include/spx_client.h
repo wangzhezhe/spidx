@@ -125,6 +125,6 @@ int spx_client_query(
     spx_provider_handle_t handle,
     spx_nonskey_entry *spx_nons_key,
     bbx_t *spx_spatial_key,
-    spx_domain_id_entry *bundle_list);
+    spx_domain_id_entry **bundle_list_ptr);
 
 #endif

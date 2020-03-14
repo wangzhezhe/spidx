@@ -12,7 +12,7 @@ void test_register_domain()
     for (i = 0; i < 3; i++)
     {
         hash_domain.m_lb[i] = 0;
-        hash_domain.m_ub[i] = 9;
+        hash_domain.m_ub[i] = 512;
     }
 
     int status = spx_inner_register_domain(hash_domain);
@@ -43,42 +43,42 @@ void test_inner_put()
     for (i = 0; i < 3; i++)
     {
         hash_domain.m_lb[i] = 0;
-        hash_domain.m_ub[i] = 3;
+        hash_domain.m_ub[i] = 64;
     }
 
     int status = spx_inner_put(encoded_nons_key, hash_domain, 1234);
 
     if (status != SPIDX_SUCCESS)
     {
-        fprintf(stderr, "---error: failed to put hash domain---\n");
+        fprintf(stderr, "---error: failed to put hash domain 1---\n");
         exit(-1);
     }
 
     for (i = 0; i < 3; i++)
     {
-        hash_domain.m_lb[i] = 4;
-        hash_domain.m_ub[i] = 7;
+        hash_domain.m_lb[i] = 128;
+        hash_domain.m_ub[i] = 256;
     }
 
     status = spx_inner_put(encoded_nons_key, hash_domain, 5678);
 
     if (status != SPIDX_SUCCESS)
     {
-        fprintf(stderr, "---error: failed to put hash domain---\n");
+        fprintf(stderr, "---error: failed to put hash domain 2---\n");
         exit(-1);
     }
 
     for (i = 0; i < 3; i++)
     {
-        hash_domain.m_lb[i] = 0;
-        hash_domain.m_ub[i] = 200;
+        hash_domain.m_lb[i] = 68;
+        hash_domain.m_ub[i] = 1024;
     }
 
     status = spx_inner_put(encoded_nons_key, hash_domain, 1234);
 
     if (status != SPIDX_OUTOFBOUND)
     {
-        fprintf(stderr, "---error: failed to put hash domain, out of bound---\n");
+        fprintf(stderr, "---error: failed to put hash domain test, out of bound---\n");
         exit(-1);
     }
 
@@ -96,7 +96,7 @@ void test_inner_query()
     for (i = 0; i < 3; i++)
     {
         query_domain.m_lb[i] = 0;
-        query_domain.m_ub[i] = 8;
+        query_domain.m_ub[i] = 511;
     }
     //query the value by the spacific domain
     domain_id_boundle_t *domain_id_list = spx_inner_query(encoded_nons_key, query_domain);

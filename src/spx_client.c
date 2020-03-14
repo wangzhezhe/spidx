@@ -212,7 +212,7 @@ int spx_client_query(
     spx_provider_handle_t handle,
     spx_nonskey_entry *spx_nons_key,
     bbx_t *spx_spatial_key,
-    spx_domain_id_entry *bundle_list)
+    spx_domain_id_entry **bundle_list_ptr)
 {
 
     hg_handle_t h;
@@ -262,27 +262,21 @@ int spx_client_query(
         return SPIDX_FAILURE;
     }
 
-    fprintf(stdout, "ok to send and get results\n");
-
     //decode the response into the spx_partition_id_bundle_t
     obj_list_entry_ptr query_entry = query_resp.spx_spatial_id_list;
     spx_domain_id_entry *dest_prev = NULL;
-    int num = 0;
     int ifFirst = 1;
     while (query_entry != NULL)
     {
-        num++;
-        fprintf(stdout, "current id %d\n", num);
-
         //check query results
         spx_domain_id_bundle_t *tmp_query = (spx_domain_id_bundle_t *)query_entry->value.raw_obj;
-        printbbx(&(tmp_query->m_domain));
-        fprintf(stdout, "associated id %d\n", tmp_query->m_associated_id);
+        //printbbx(&(tmp_query->m_domain));
+        //fprintf(stdout, "associated id %d\n", tmp_query->m_associated_id);
 
         //generate new node (there are some problems of using the  original memory)
         //HG contexts must be destroyed before finalizing HG
         spx_domain_id_bundle_t *tmp_new = malloc(sizeof(spx_domain_id_bundle_t));
-        memcpy(tmp_new, query_entry->value.raw_obj, sizeof(spx_domain_id_bundle_t));
+        memcpy(tmp_new,query_entry->value.raw_obj,sizeof(spx_domain_id_bundle_t));
 
         //the input pointer is null, there is no assigned space
         spx_domain_id_entry *tmp_new_entry = (spx_domain_id_entry *)malloc(sizeof(spx_domain_id_entry));
@@ -293,9 +287,9 @@ int spx_client_query(
         //the entry already exist for the first elem
         if (ifFirst == 1)
         {
-            bundle_list = tmp_new_entry;
-            bundle_list->next = NULL;
-            dest_prev = bundle_list;
+            *bundle_list_ptr = tmp_new_entry;
+            (*bundle_list_ptr)->next = NULL;
+            dest_prev = (*bundle_list_ptr);
             ifFirst = 0;
             query_entry = query_entry->next;
             continue;
