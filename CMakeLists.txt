@@ -29,6 +29,9 @@ target_link_libraries(spx_server_inner argobots)
 add_library(spx_server ${spidx_SOURCE_DIR}/src/spx_server.c)
 target_link_libraries(spx_server argobots margo)
 
+# hash lib
+add_library(spx_hash ${spidx_SOURCE_DIR}/src/spx_hash.c)
+target_link_libraries(spx_hash argobots)
 
 #add client code
 add_library(spx_client ${spidx_SOURCE_DIR}/src/spx_client.c)

@@ -55,8 +55,6 @@ result of test_register 0
 result of test_update 0
 result of test_update 0
 ---test_query---
-current id 1
-current id 2
 result of test_query 0
 check the return resutls
 id is 123
@@ -72,3 +70,9 @@ m_lb
 m_ub
 128,128,128,
 ```
+
+### TODO list
+
+add multiple global domain at the 
+
+add multiple hashfunction (use the factory method similar to ch-placement)

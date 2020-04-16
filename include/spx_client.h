@@ -20,6 +20,8 @@ typedef struct spx_client* spx_client_t;
 typedef struct spx_provider_handle *spx_provider_handle_t;
 #define SPIDX_PROVIDER_HANDLE_NULL ((spx_provider_handle_t)NULL)
 
+//TODO add a map that store the bounding box
+
 //init the mochi service and expose the spidx RPC
 /**
 * @brief Creates a SPIDX client.
