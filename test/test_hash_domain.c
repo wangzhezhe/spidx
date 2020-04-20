@@ -1,5 +1,5 @@
 
-#include <spx_hash.h>
+#include <spx_hash_domain.h>
 
 void test_register_domain()
 {

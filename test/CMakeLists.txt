@@ -11,5 +11,20 @@ target_link_libraries(test_server spx_server argobots spx_server spx_server_inne
 add_executable(test_client test_client.c)
 target_link_libraries(test_client spx_client argobots)
 
-add_executable(test_hash test_hash.c)
-target_link_libraries(test_hash spx_hash)
+add_executable(test_hash_domain test_hash_domain.c)
+target_link_libraries(test_hash_domain spx_hash_domain)
+
+add_executable(test_hash_mod test_hash_mod.c)
+target_link_libraries(test_hash_mod spx_hash_mod)
+
+add_test( NAME test_bbxtool COMMAND test_bbxtool)
+
+add_test( NAME test_server_inner COMMAND test_server_inner)
+
+add_test( NAME test_encode COMMAND test_encode)
+
+add_test( NAME test_hash_domain COMMAND test_hash_domain)
+
+add_test( NAME spx_hash_mod COMMAND spx_hash_mod)
+
+#test the server and the client manually

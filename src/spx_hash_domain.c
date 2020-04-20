@@ -1,5 +1,5 @@
 #include "../src/utils/uthash.h"
-#include <spx_hash.h>
+#include <spx_hash_domain.h>
 
 //init the global domain
 global_domain_map_t *g_domain_map = NULL;
