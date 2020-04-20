@@ -1,5 +1,5 @@
 #include "../src/utils/uthash.h"
-#include <spx_hash.h>
+#include <spx_hash_domain.h>
 
 //init the global domain
 global_domain_map_t *g_domain_map = NULL;
@@ -69,4 +69,9 @@ int spx_hash_delete_global_domain_map()
         free(current);            /* optional- if you want to free  */
     }
     return 0;
+}
+
+global_domain_map_t* spx_hash_get_domain_map(){
+    //return the pointer to the map
+    return g_domain_map;
 }
