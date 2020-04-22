@@ -110,4 +110,5 @@ int main()
     test_nons_key_encode();
     test_spatial_key_encode();
     test_boundle_decode();
+    return 0;
 }

@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 3.14)
 project (spidx C)
 
 option(ENABLE_TESTING "Enable Testing" ON)
+enable_testing()
 
 # add our cmake module directory to the path
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
@@ -29,6 +30,16 @@ target_link_libraries(spx_server_inner argobots)
 add_library(spx_server ${spidx_SOURCE_DIR}/src/spx_server.c)
 target_link_libraries(spx_server argobots margo)
 
+# hash_domain lib
+add_library(spx_hash_domain ${spidx_SOURCE_DIR}/src/spx_hash_domain.c)
+target_link_libraries(spx_hash_domain argobots)
+
+# hash_module lib
+add_library(spx_hash_mod 
+${spidx_SOURCE_DIR}/src/spx_hash_mod.c
+${spidx_SOURCE_DIR}/src/hashmodules/sfc.c
+)
+target_link_libraries(spx_hash_mod)
 
 #add client code
 add_library(spx_client ${spidx_SOURCE_DIR}/src/spx_client.c)

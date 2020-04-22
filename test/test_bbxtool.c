@@ -35,4 +35,5 @@ int main()
 {
     testBBXInit();
     testBBXOverlap();
+    return 0;
 }
