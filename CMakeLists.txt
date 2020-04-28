@@ -37,7 +37,8 @@ target_link_libraries(spx_hash_domain argobots)
 # hash_module lib
 add_library(spx_hash_mod 
 ${spidx_SOURCE_DIR}/src/spx_hash_mod.c
-${spidx_SOURCE_DIR}/src/hashmodules/sfc.c
+${spidx_SOURCE_DIR}/src/hashmodules/hilbertsfc.c
+${spidx_SOURCE_DIR}/src/hashmodules/nskeymod.c
 )
 target_link_libraries(spx_hash_mod)
 

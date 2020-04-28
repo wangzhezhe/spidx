@@ -5,13 +5,13 @@
 //hilbert sfc mod map, this is initilised at the modules/sfc.c
 extern spx_hash_mod_map_t hilbertsfc_mod_map;
 //nonspatial key mod map
-//extern struct spx_hash_mod_map nsk_mod_map;
+extern spx_hash_mod_map_t nskeymod_mod_map;
 
 /* table of available modules */
 static spx_hash_mod_map_t *table[] =
 {
         &hilbertsfc_mod_map,
-        //&nsk_mod_map,
+        &nskeymod_mod_map,
         NULL,
 };
 

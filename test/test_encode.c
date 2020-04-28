@@ -7,9 +7,9 @@ void test_nons_key_encode()
     fprintf(stdout, "--test_nons_key_encode--\n");
 
     //generate the entry for int
-    int id = 123;
+    int64_t id = 123;
     spx_nonskey_entry *entry_int = (spx_nonskey_entry *)malloc(sizeof(spx_nonskey_entry));
-    entry_int->type = SPX_ELEM_INT;
+    entry_int->type = SPX_ELEM_INT64;
     entry_int->value = (void *)&id;
 
     char encoded_buff[BUFLEN];

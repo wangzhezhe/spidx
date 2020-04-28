@@ -25,6 +25,6 @@ add_test( NAME test_encode COMMAND test_encode)
 
 add_test( NAME test_hash_domain COMMAND test_hash_domain)
 
-add_test( NAME spx_hash_mod COMMAND spx_hash_mod)
+add_test( NAME test_hash_mod COMMAND test_hash_mod)
 
 #test the server and the client manually

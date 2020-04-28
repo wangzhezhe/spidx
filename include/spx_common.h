@@ -23,6 +23,7 @@ typedef struct spx_provider
     /* other provider-specific data */
 }spx_provider_t;
 
+
 typedef enum {
     SFCGLOBAL,
     VERSION,
@@ -31,9 +32,10 @@ typedef enum {
     INTERLEAVING
 }HASHMETHOD;
 
+
 typedef enum
 {
-    SPX_ELEM_INT,
+    SPX_ELEM_INT64,
     SPX_ELEM_STR,
     SPX_ELEM_INTSTR,
 } spx_elem_t;
@@ -124,7 +126,7 @@ typedef struct spx_domain_id_entry
 static void enocde_nonspatial_key(spx_nonskey_entry *nonskey_entry, char* encoded_buffer)
 {
     char buffer[BUFLEN];
-    if (nonskey_entry->type == SPX_ELEM_INT)
+    if (nonskey_entry->type == SPX_ELEM_INT64)
     {
         sprintf(buffer, "%d", *(int *)nonskey_entry->value);
     }

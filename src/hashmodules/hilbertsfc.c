@@ -26,6 +26,8 @@ spx_hash_mod_map_t hilbertsfc_mod_map =
         .initiate = spx_hash_mod_hilbertsfc_init,
 };
 
+//extract necessary information from the hash_parameters
+
 static spx_hash_mod_t *spx_hash_mod_hilbertsfc_init(hash_specific_parameterset_t* hash_parameters)
 {
     fprintf(stdout, "call the spx_hash_mod_hilbertsfc\n");
