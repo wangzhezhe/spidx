@@ -51,11 +51,16 @@ srun: job 95900026 queued and waiting for resources
 srun: job 95900026 has been allocated resources
 ---test_register---
 result of test_register 0
+//([0,0,0],[512,512,512],123) is registered
 ---test_update---
 result of test_update 0
 result of test_update 0
+//([0,0,0],[32,32,32],123) is updated
+//([64,64,64],[128,128,128],456) is updated
 ---test_query---
 result of test_query 0
+//query ([0,0,0],[128,128,128])
+//return a list
 check the return resutls
 id is 123
 dims 3
@@ -63,6 +68,7 @@ m_lb
 0,0,0,
 m_ub
 32,32,32,
+
 id is 456
 dims 3
 m_lb
@@ -76,3 +82,10 @@ m_ub
 add multiple global domain at the 
 
 add multiple hashfunction (use the factory method similar to ch-placement)
+
+
+### references
+
+slides about the spidx
+
+https://docs.google.com/presentation/d/15ClA-3RMb9_m6KnLag4C1D1YBT87TrPBLsebO_YwuZY/edit?usp=sharing
