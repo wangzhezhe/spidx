@@ -8,8 +8,11 @@ add_executable(test_encode test_encode.c)
 add_executable(test_server test_server.c)
 target_link_libraries(test_server spx_server argobots spx_server spx_server_inner)
 
-add_executable(test_client test_client.c)
-target_link_libraries(test_client spx_client argobots)
+add_executable(test_client_2d test_client_2d.c)
+target_link_libraries(test_client_2d spx_client argobots)
+
+add_executable(test_client_3d test_client_3d.c)
+target_link_libraries(test_client_3d spx_client argobots)
 
 add_executable(test_hash_domain test_hash_domain.c)
 target_link_libraries(test_hash_domain spx_hash_domain)
